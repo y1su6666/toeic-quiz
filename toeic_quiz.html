@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新制多益單字複習</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f13;
+    --surface: #1a1a22;
+    --surface2: #22222e;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --accent: #7c6ff7;
+    --accent2: #a59ff8;
+    --accent-dim: rgba(124,111,247,0.15);
+    --text: #f0efff;
+    --text2: #a8a6c0;
+    --text3: #6b6882;
+    --green: #4ade80;
+    --green-dim: rgba(74,222,128,0.12);
+    --red: #f87171;
+    --red-dim: rgba(248,113,113,0.12);
+    --yellow: #fbbf24;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans TC', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* HEADER */
+  header {
+    width: 100%;
+    max-width: 680px;
+    padding: 1.5rem 1.5rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo { font-family: 'DM Serif Display', serif; font-size: 1.15rem; color: var(--accent2); letter-spacing: 0.03em; }
+  .logo span { color: var(--text3); font-size: 0.8rem; font-family: 'Noto Sans TC', sans-serif; margin-left: 0.5rem; font-weight: 400; }
+
+  /* STATS BAR */
+  .stats {
+    width: 100%;
+    max-width: 680px;
+    padding: 1rem 1.5rem 0;
+    display: flex;
+    gap: 10px;
+  }
+  .stat { flex: 1; background: var(--surface); border: 0.5px solid var(--border); border-radius: 10px; padding: 0.6rem 0.75rem; text-align: center; }
+  .stat-n { font-size: 1.3rem; font-weight: 700; }
+  .stat-l { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .stat-n.green { color: var(--green); }
+  .stat-n.red { color: var(--red); }
+  .stat-n.acc { color: var(--accent2); }
+
+  /* CONTROLS */
+  .controls {
+    width: 100%;
+    max-width: 680px;
+    padding: 1rem 1.5rem 0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .ctrl-btn {
+    flex: 1;
+    min-width: 90px;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.45rem 0.5rem;
+    font-size: 12px;
+    color: var(--text2);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .ctrl-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+  .ctrl-btn:hover:not(.active) { border-color: var(--border2); color: var(--text); }
+
+  /* CATEGORY FILTER */
+  .cat-filter {
+    width: 100%;
+    max-width: 680px;
+    padding: 0.6rem 1.5rem 0;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .cat-btn {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 99px;
+    padding: 3px 12px;
+    font-size: 12px;
+    color: var(--text3);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .cat-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+
+  /* PROGRESS */
+  .progress-wrap {
+    width: 100%;
+    max-width: 680px;
+    padding: 1rem 1.5rem 0;
+  }
+  .progress-info { display: flex; justify-content: space-between; font-size: 12px; color: var(--text3); margin-bottom: 6px; }
+  .progress-bg { height: 4px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width 0.4s ease; }
+
+  /* QUESTION CARD */
+  .main {
+    width: 100%;
+    max-width: 680px;
+    padding: 1rem 1.5rem;
+    flex: 1;
+  }
+  .q-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem 1.5rem 1.75rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .q-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; left: 50%; transform: translateX(-50%);
+    width: 200px; height: 80px;
+    background: radial-gradient(ellipse, rgba(124,111,247,0.12), transparent 70%);
+    pointer-events: none;
+  }
+  .q-type { font-size: 11px; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.75rem; }
+  .q-word { font-family: 'DM Serif Display', serif; font-size: 2.4rem; color: var(--text); line-height: 1.2; }
+  .q-pos { font-size: 12px; color: var(--accent2); margin-top: 0.4rem; background: var(--accent-dim); display: inline-block; padding: 2px 10px; border-radius: 99px; }
+
+  /* OPTIONS */
+  .options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
+  .opt {
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    font-size: 14px;
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.4;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-dim); }
+  .opt .opt-key { width: 22px; height: 22px; border-radius: 6px; background: var(--surface2); font-size: 11px; color: var(--text3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .opt.correct { border-color: var(--green); background: var(--green-dim); }
+  .opt.correct .opt-key { background: var(--green); color: #0f0f13; }
+  .opt.wrong { border-color: var(--red); background: var(--red-dim); }
+  .opt.wrong .opt-key { background: var(--red); color: #0f0f13; }
+  .opt:disabled { cursor: default; }
+
+  /* BOTTOM ROW */
+  .bottom { display: flex; justify-content: space-between; align-items: center; }
+  .skip-btn { font-size: 13px; color: var(--text3); background: none; border: none; cursor: pointer; font-family: inherit; padding: 0.5rem 0; }
+  .skip-btn:hover { color: var(--text2); }
+  .next-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 0.6rem 1.5rem;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.15s;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .next-btn.ready { opacity: 1; pointer-events: auto; }
+  .next-btn.ready:hover { background: var(--accent2); transform: translateY(-1px); }
+
+  /* RESULT FEEDBACK */
+  .feedback {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 1rem;
+    font-size: 13px;
+    color: var(--text2);
+    display: none;
+    line-height: 1.6;
+  }
+  .feedback.show { display: block; }
+  .feedback .ex { color: var(--text3); font-size: 12px; margin-top: 4px; }
+
+  /* FINISH SCREEN */
+  #finish {
+    display: none;
+    width: 100%;
+    max-width: 680px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+  }
+  .finish-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .finish-title { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--text); margin-bottom: 0.5rem; }
+  .finish-sub { color: var(--text2); font-size: 14px; margin-bottom: 2rem; }
+  .finish-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 2rem; }
+  .f-stat { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 1rem; }
+  .f-stat .fn { font-size: 1.8rem; font-weight: 700; }
+  .f-stat .fl { font-size: 12px; color: var(--text3); margin-top: 4px; }
+  .restart-btn {
+    background: var(--accent); color: white; border: none; border-radius: 12px;
+    padding: 0.75rem 2rem; font-size: 15px; font-family: inherit; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .restart-btn:hover { background: var(--accent2); }
+
+  @media (max-width: 480px) {
+    .q-word { font-size: 1.8rem; }
+    .options { grid-template-columns: 1fr; }
+    .controls { gap: 6px; }
+    .ctrl-btn { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">多益單字 <span>TOEIC Vocab</span></div>
+  <div style="font-size:12px;color:var(--text3)" id="total-count"></div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="stat-n green" id="s-correct">0</div><div class="stat-l">答對</div></div>
+  <div class="stat"><div class="stat-n red" id="s-wrong">0</div><div class="stat-l">答錯</div></div>
+  <div class="stat"><div class="stat-n acc" id="s-remain">0</div><div class="stat-l">剩餘</div></div>
+</div>
+
+<div class="controls">
+  <button class="ctrl-btn active" data-mode="random" onclick="setMode('random',this)">🔀 隨機混合</button>
+  <button class="ctrl-btn" data-mode="en2zh" onclick="setMode('en2zh',this)">EN → 中文</button>
+  <button class="ctrl-btn" data-mode="zh2en" onclick="setMode('zh2en',this)">中文 → EN</button>
+</div>
+
+<div class="cat-filter">
+  <button class="cat-btn active" data-cat="all" onclick="setCat('all',this)">全部</button>
+  <button class="cat-btn" data-cat="noun" onclick="setCat('noun',this)">名詞</button>
+  <button class="cat-btn" data-cat="verb" onclick="setCat('verb',this)">動詞</button>
+  <button class="cat-btn" data-cat="adj" onclick="setCat('adj',this)">形容詞</button>
+  <button class="cat-btn" data-cat="adv" onclick="setCat('adv',this)">副詞</button>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-info">
+    <span id="prog-text">第 1 題</span>
+    <span id="prog-pct">0%</span>
+  </div>
+  <div class="progress-bg"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+</div>
+
+<div class="main" id="quiz-area">
+  <div class="q-card">
+    <div class="q-type" id="q-type">請選出正確的中文意思</div>
+    <div class="q-word" id="q-word">loading...</div>
+    <div class="q-pos" id="q-pos">名詞</div>
+  </div>
+  <div class="options" id="opts"></div>
+  <div class="feedback" id="feedback"></div>
+  <div class="bottom">
+    <button class="skip-btn" onclick="skip()">跳過這題 →</button>
+    <button class="next-btn" id="next-btn" onclick="nextQ()">下一題 →</button>
+  </div>
+</div>
+
+<div id="finish">
+  <div class="finish-icon">🎉</div>
+  <div class="finish-title">完成了！</div>
+  <div class="finish-sub" id="finish-sub"></div>
+  <div class="finish-stats">
+    <div class="f-stat"><div class="fn green" id="f-correct">0</div><div class="fl">答對</div></div>
+    <div class="f-stat"><div class="fn red" id="f-wrong">0</div><div class="fl">答錯</div></div>
+    <div class="f-stat"><div class="fn" id="f-acc" style="color:var(--accent2)">0%</div><div class="fl">正確率</div></div>
+  </div>
+  <button class="restart-btn" onclick="restart()">再來一輪 🔄</button>
+</div>
+
+<script>
+const WORDS = [
+  // ── 常考名詞 ──
+  {en:"access",zh:"使用權；取得",cat:"noun",ex:"have access to"},
+  {en:"accommodation",zh:"住宿",cat:"noun",ex:"hotel accommodations"},
+  {en:"addition",zh:"增加的人或物",cat:"noun",ex:"an addition to the firm"},
+  {en:"adjustment",zh:"調整",cat:"noun",ex:"make adjustments"},
+  {en:"admission",zh:"入場",cat:"noun",ex:"admission fee"},
+  {en:"advance",zh:"進展",cat:"noun",ex:"advances in medicine"},
+  {en:"agenda",zh:"議程",cat:"noun",ex:"agenda for the meeting"},
+  {en:"agreement",zh:"協議",cat:"noun",ex:"sign an agreement"},
+  {en:"allowance",zh:"津貼",cat:"noun",ex:"travel allowances"},
+  {en:"amenity",zh:"設施",cat:"noun",ex:"hotel amenities"},
+  {en:"analysis",zh:"分析",cat:"noun",ex:"conduct an analysis"},
+  {en:"applicant",zh:"求職者",cat:"noun",ex:"qualified applicant"},
+  {en:"application",zh:"申請",cat:"noun",ex:"submit an application"},
+  {en:"appointment",zh:"預約；約定",cat:"noun",ex:"make an appointment"},
+  {en:"appraisal",zh:"評估",cat:"noun",ex:"performance appraisal"},
+  {en:"assembly",zh:"組裝；集會",cat:"noun",ex:"assembly line"},
+  {en:"assignment",zh:"任務",cat:"noun",ex:"complete an assignment"},
+  {en:"absence",zh:"缺席",cat:"noun",ex:"in one's absence"},
+  {en:"authorization",zh:"授權",cat:"noun",ex:"obtain authorization"},
+  {en:"availability",zh:"可取得性",cat:"noun",ex:"check availability"},
+  {en:"balance",zh:"餘額",cat:"noun",ex:"account balance"},
+  {en:"banquet",zh:"宴會",cat:"noun",ex:"year-end banquet"},
+  {en:"brochure",zh:"小冊子",cat:"noun",ex:"travel brochure"},
+  {en:"bulk",zh:"大量",cat:"noun",ex:"purchase in bulk"},
+  {en:"capacity",zh:"容量；能力",cat:"noun",ex:"at full capacity"},
+  {en:"catering",zh:"餐飲服務",cat:"noun",ex:"catering service"},
+  {en:"characteristic",zh:"特徵",cat:"noun",ex:"distinctive characteristic"},
+  {en:"committee",zh:"委員會",cat:"noun",ex:"committee meeting"},
+  {en:"commitment",zh:"承諾",cat:"noun",ex:"commitment to quality"},
+  {en:"component",zh:"零件；組成部分",cat:"noun",ex:"key component of"},
+  {en:"courier",zh:"快遞員；快遞公司",cat:"noun",ex:"courier service"},
+  {en:"coverage",zh:"覆蓋範圍",cat:"noun",ex:"insurance coverage"},
+  {en:"credit",zh:"抵用金；信用",cat:"noun",ex:"store credit"},
+  {en:"directory",zh:"通訊錄",cat:"noun",ex:"employee directory"},
+  {en:"division",zh:"部門",cat:"noun",ex:"sales division"},
+  {en:"distribution",zh:"分配；配送",cat:"noun",ex:"distribution center"},
+  {en:"employment",zh:"就業",cat:"noun",ex:"employment opportunities"},
+  {en:"estimate",zh:"估計；估價",cat:"noun",ex:"cost estimate"},
+  {en:"evaluation",zh:"評估",cat:"noun",ex:"performance evaluation"},
+  {en:"exhibition",zh:"展覽",cat:"noun",ex:"art exhibition"},
+  {en:"expertise",zh:"專業知識",cat:"noun",ex:"technical expertise"},
+  {en:"facility",zh:"設施；場所",cat:"noun",ex:"manufacturing facility"},
+  {en:"feedback",zh:"意見回饋",cat:"noun",ex:"customer feedback"},
+  {en:"fundraiser",zh:"募款活動",cat:"noun",ex:"charity fundraiser"},
+  {en:"function",zh:"功能；活動",cat:"noun",ex:"company function"},
+  {en:"garments",zh:"服飾",cat:"noun",ex:"protective garments"},
+  {en:"grant",zh:"補助金",cat:"noun",ex:"apply for a grant"},
+  {en:"guidelines",zh:"指南",cat:"noun",ex:"follow guidelines"},
+  {en:"identification",zh:"身分證件",cat:"noun",ex:"two forms of identification"},
+  {en:"inception",zh:"開始；創立",cat:"noun",ex:"since its inception"},
+  {en:"initiative",zh:"計畫；倡議",cat:"noun",ex:"launch an initiative"},
+  {en:"inquiry",zh:"詢問",cat:"noun",ex:"respond to inquiries"},
+  {en:"inspection",zh:"檢查",cat:"noun",ex:"safety inspection"},
+  {en:"installment",zh:"分期付款",cat:"noun",ex:"pay in installments"},
+  {en:"institution",zh:"機構",cat:"noun",ex:"financial institution"},
+  {en:"instructions",zh:"指示",cat:"noun",ex:"follow instructions"},
+  {en:"insurance",zh:"保險",cat:"noun",ex:"health insurance"},
+  {en:"intermission",zh:"中場休息",cat:"noun",ex:"during intermission"},
+  {en:"inventory",zh:"庫存",cat:"noun",ex:"inventory control"},
+  {en:"invoice",zh:"商業帳單",cat:"noun",ex:"issue an invoice"},
+  {en:"itinerary",zh:"行程表",cat:"noun",ex:"travel itinerary"},
+  {en:"lease",zh:"租約",cat:"noun",ex:"sign a lease"},
+  {en:"maintenance",zh:"維修；保養",cat:"noun",ex:"routine maintenance"},
+  {en:"manufacturing",zh:"製造業",cat:"noun",ex:"manufacturing process"},
+  {en:"merchandise",zh:"商品",cat:"noun",ex:"promotional merchandise"},
+  {en:"modification",zh:"修改",cat:"noun",ex:"make modifications"},
+  {en:"negotiation",zh:"協商",cat:"noun",ex:"contract negotiation"},
+  {en:"objective",zh:"目標",cat:"noun",ex:"achieve an objective"},
+  {en:"operation",zh:"營運；操作",cat:"noun",ex:"business operations"},
+  {en:"orientation",zh:"新人訓練",cat:"noun",ex:"employee orientation"},
+  {en:"output",zh:"產量；輸出",cat:"noun",ex:"increase output"},
+  {en:"pamphlet",zh:"小冊子",cat:"noun",ex:"informational pamphlet"},
+  {en:"perspective",zh:"觀點",cat:"noun",ex:"from a different perspective"},
+  {en:"practice",zh:"慣例；作法",cat:"noun",ex:"common practices"},
+  {en:"preference",zh:"偏好",cat:"noun",ex:"customer preference"},
+  {en:"preparation",zh:"準備",cat:"noun",ex:"preparation for the event"},
+  {en:"presentation",zh:"簡報",cat:"noun",ex:"give a presentation"},
+  {en:"prescription",zh:"處方",cat:"noun",ex:"fill a prescription"},
+  {en:"priority",zh:"優先事項",cat:"noun",ex:"top priority"},
+  {en:"proceeds",zh:"收益",cat:"noun",ex:"proceeds from the auction"},
+  {en:"prospect",zh:"前景；潛在客戶",cat:"noun",ex:"job prospects"},
+  {en:"publication",zh:"出版物",cat:"noun",ex:"latest publication"},
+  {en:"receipt",zh:"收據；收到",cat:"noun",ex:"acknowledge receipt of"},
+  {en:"reception",zh:"接待處；反應",cat:"noun",ex:"reception desk"},
+  {en:"refreshment",zh:"點心；飲料",cat:"noun",ex:"light refreshments"},
+  {en:"refund",zh:"退款",cat:"noun",ex:"full refund"},
+  {en:"reminder",zh:"提醒事項",cat:"noun",ex:"gentle reminder"},
+  {en:"remuneration",zh:"報酬",cat:"noun",ex:"annual remuneration"},
+  {en:"renovation",zh:"翻修",cat:"noun",ex:"office renovation"},
+  {en:"replacement",zh:"替代品；接替者",cat:"noun",ex:"replacement parts"},
+  {en:"request",zh:"要求",cat:"noun",ex:"submit a request"},
+  {en:"requirement",zh:"要求；條件",cat:"noun",ex:"meet the requirements"},
+  {en:"reservation",zh:"預約",cat:"noun",ex:"make a reservation"},
+  {en:"residence",zh:"住所",cat:"noun",ex:"permanent residence"},
+  {en:"restructuring",zh:"重整",cat:"noun",ex:"corporate restructuring"},
+  {en:"retail",zh:"零售",cat:"noun",ex:"retail store"},
+  {en:"revenue",zh:"收入",cat:"noun",ex:"increase revenue"},
+  {en:"subscription",zh:"訂閱",cat:"noun",ex:"annual subscription"},
+  {en:"supervisor",zh:"主管",cat:"noun",ex:"immediate supervisor"},
+  {en:"term",zh:"條款；期間；術語",cat:"noun",ex:"technical terms"},
+  {en:"testimonials",zh:"推薦評語",cat:"noun",ex:"customer testimonials"},
+  {en:"undertaking",zh:"工作；任務",cat:"noun",ex:"challenging undertaking"},
+  {en:"variety",zh:"多樣性",cat:"noun",ex:"a variety of products"},
+  {en:"venue",zh:"場地",cat:"noun",ex:"event venue"},
+  {en:"vicinity",zh:"附近地區",cat:"noun",ex:"in the vicinity of"},
+  {en:"warranty",zh:"保固",cat:"noun",ex:"under warranty"},
+
+  // ── 常考形容詞 ──
+  {en:"accountable",zh:"負責的",cat:"adj",ex:"accountable for errors"},
+  {en:"accessible",zh:"可取得的；可進入的",cat:"adj",ex:"accessible by subway"},
+  {en:"additional",zh:"額外的",cat:"adj",ex:"at no additional costs"},
+  {en:"adequate",zh:"足夠的",cat:"adj",ex:"adequate funding"},
+  {en:"adjacent",zh:"鄰近的",cat:"adj",ex:"adjacent to the station"},
+  {en:"advanced",zh:"先進的；高級的",cat:"adj",ex:"advanced technology"},
+  {en:"affordable",zh:"負擔得起的",cat:"adj",ex:"affordable price"},
+  {en:"alternative",zh:"替代的",cat:"adj",ex:"alternative solution"},
+  {en:"annual",zh:"年度的",cat:"adj",ex:"annual conference"},
+  {en:"authentic",zh:"真實的；道地的",cat:"adj",ex:"authentic Greek cuisine"},
+  {en:"beneficial",zh:"有益的",cat:"adj",ex:"beneficial to employees"},
+  {en:"booming",zh:"繁榮的",cat:"adj",ex:"booming industry"},
+  {en:"capable",zh:"有能力的",cat:"adj",ex:"capable of handling tasks"},
+  {en:"certified",zh:"經認證的",cat:"adj",ex:"certified accountant"},
+  {en:"commercial",zh:"商業的",cat:"adj",ex:"commercial property"},
+  {en:"complimentary",zh:"免費贈送的",cat:"adj",ex:"complimentary breakfast"},
+  {en:"compatible",zh:"相容的",cat:"adj",ex:"compatible with the software"},
+  {en:"competent",zh:"能勝任的",cat:"adj",ex:"competent staff"},
+  {en:"comprehensive",zh:"全面的",cat:"adj",ex:"comprehensive report"},
+  {en:"competitive",zh:"有競爭力的",cat:"adj",ex:"competitive salary"},
+  {en:"confidential",zh:"機密的",cat:"adj",ex:"confidential information"},
+  {en:"consecutive",zh:"連續的",cat:"adj",ex:"consecutive days"},
+  {en:"culinary",zh:"烹飪的",cat:"adj",ex:"culinary skills"},
+  {en:"custom-made",zh:"訂製的",cat:"adj",ex:"custom-made furniture"},
+  {en:"customized",zh:"客製化的",cat:"adj",ex:"customized service"},
+  {en:"designated",zh:"指定的",cat:"adj",ex:"designated area"},
+  {en:"diverse",zh:"多元的",cat:"adj",ex:"diverse workforce"},
+  {en:"durable",zh:"耐用的",cat:"adj",ex:"durable materials"},
+  {en:"effective",zh:"有效的",cat:"adj",ex:"effective immediately"},
+  {en:"efficient",zh:"有效率的",cat:"adj",ex:"efficient service"},
+  {en:"eligible",zh:"有資格的",cat:"adj",ex:"eligible for a discount"},
+  {en:"essential",zh:"必要的",cat:"adj",ex:"essential equipment"},
+  {en:"existing",zh:"現有的",cat:"adj",ex:"existing customers"},
+  {en:"extensive",zh:"廣泛的",cat:"adj",ex:"extensive experience"},
+  {en:"favorable",zh:"有利的",cat:"adj",ex:"favorable conditions"},
+  {en:"feasible",zh:"可行的",cat:"adj",ex:"feasible plan"},
+  {en:"flexible",zh:"彈性的",cat:"adj",ex:"flexible hours"},
+  {en:"furnished",zh:"附家具的",cat:"adj",ex:"fully furnished apartment"},
+  {en:"impressed",zh:"印象深刻的",cat:"adj",ex:"deeply impressed by"},
+  {en:"impressive",zh:"令人印象深刻的",cat:"adj",ex:"impressive performance"},
+  {en:"informative",zh:"資訊豐富的",cat:"adj",ex:"informative presentation"},
+  {en:"innovative",zh:"創新的",cat:"adj",ex:"innovative approach"},
+  {en:"intensive",zh:"密集的",cat:"adj",ex:"intensive training"},
+  {en:"leading",zh:"領先的",cat:"adj",ex:"leading manufacturer"},
+  {en:"likely",zh:"可能的",cat:"adj",ex:"likely to increase sales"},
+  {en:"lucrative",zh:"獲利豐厚的",cat:"adj",ex:"lucrative business"},
+  {en:"mandatory",zh:"強制性的",cat:"adj",ex:"mandatory training"},
+  {en:"multiple",zh:"多個的",cat:"adj",ex:"multiple locations"},
+  {en:"mutual",zh:"相互的",cat:"adj",ex:"mutual agreement"},
+  {en:"obsolete",zh:"過時的",cat:"adj",ex:"obsolete equipment"},
+  {en:"optimistic",zh:"樂觀的",cat:"adj",ex:"optimistic about sales"},
+  {en:"outstanding",zh:"未付的；傑出的",cat:"adj",ex:"outstanding balance"},
+  {en:"outdated",zh:"過時的",cat:"adj",ex:"outdated system"},
+  {en:"permanent",zh:"永久的",cat:"adj",ex:"permanent position"},
+  {en:"pharmaceutical",zh:"製藥的",cat:"adj",ex:"pharmaceutical company"},
+  {en:"pleased",zh:"滿意的",cat:"adj",ex:"pleased with the results"},
+  {en:"portable",zh:"可攜帶的",cat:"adj",ex:"portable device"},
+  {en:"preliminary",zh:"初步的",cat:"adj",ex:"preliminary report"},
+  {en:"promising",zh:"有前途的",cat:"adj",ex:"promising candidate"},
+  {en:"prospective",zh:"潛在的；未來的",cat:"adj",ex:"prospective customer"},
+  {en:"protective",zh:"保護性的",cat:"adj",ex:"protective clothing"},
+  {en:"rapid",zh:"快速的",cat:"adj",ex:"rapid growth"},
+  {en:"reliant",zh:"依賴的",cat:"adj",ex:"reliant on technology"},
+  {en:"reluctant",zh:"不情願的",cat:"adj",ex:"reluctant to change"},
+  {en:"remaining",zh:"剩餘的",cat:"adj",ex:"remaining seats"},
+  {en:"renowned",zh:"著名的",cat:"adj",ex:"renowned author"},
+  {en:"revised",zh:"修訂過的",cat:"adj",ex:"revised schedule"},
+  {en:"rotating",zh:"輪班的；旋轉的",cat:"adj",ex:"rotating shift"},
+  {en:"scattered",zh:"分散的",cat:"adj",ex:"scattered across the desk"},
+  {en:"spacious",zh:"寬敞的",cat:"adj",ex:"spacious office"},
+  {en:"specific",zh:"特定的",cat:"adj",ex:"specific requirements"},
+  {en:"state-of-the-art",zh:"最先進的",cat:"adj",ex:"state-of-the-art equipment"},
+  {en:"subject",zh:"易受…影響的",cat:"adj",ex:"subject to change"},
+  {en:"substantial",zh:"大量的；重大的",cat:"adj",ex:"substantial increase"},
+  {en:"sufficient",zh:"足夠的",cat:"adj",ex:"sufficient funds"},
+  {en:"tentative",zh:"暫定的",cat:"adj",ex:"tentative schedule"},
+  {en:"thorough",zh:"徹底的",cat:"adj",ex:"thorough inspection"},
+  {en:"timely",zh:"及時的",cat:"adj",ex:"timely response"},
+  {en:"upcoming",zh:"即將到來的",cat:"adj",ex:"upcoming event"},
+  {en:"various",zh:"各種的",cat:"adj",ex:"various options"},
+  {en:"versatile",zh:"多功能的",cat:"adj",ex:"versatile product"},
+  {en:"visible",zh:"看得見的",cat:"adj",ex:"visible improvement"},
+
+  // ── 常考動詞 ──
+  {en:"acquire",zh:"取得；獲得",cat:"verb",ex:"acquire new information"},
+  {en:"activate",zh:"啟動",cat:"verb",ex:"activate an account"},
+  {en:"address",zh:"處理；對…說話",cat:"verb",ex:"address an issue"},
+  {en:"adopt",zh:"採用",cat:"verb",ex:"adopt a policy"},
+  {en:"allocate",zh:"分配",cat:"verb",ex:"allocate resources"},
+  {en:"alter",zh:"更改",cat:"verb",ex:"alter the design"},
+  {en:"anticipate",zh:"預期",cat:"verb",ex:"anticipate demand"},
+  {en:"appoint",zh:"任命",cat:"verb",ex:"appoint a manager"},
+  {en:"approve",zh:"核准",cat:"verb",ex:"approve a proposal"},
+  {en:"arrange",zh:"安排",cat:"verb",ex:"arrange transportation"},
+  {en:"assign",zh:"指派",cat:"verb",ex:"assign tasks to employees"},
+  {en:"assume",zh:"假設；承擔",cat:"verb",ex:"assume responsibility"},
+  {en:"attain",zh:"達成",cat:"verb",ex:"attain a goal"},
+  {en:"attend",zh:"參加；出席",cat:"verb",ex:"attend a seminar"},
+  {en:"attribute",zh:"把…歸因於",cat:"verb",ex:"attribute success to teamwork"},
+  {en:"authorize",zh:"授權",cat:"verb",ex:"authorize a payment"},
+  {en:"bill",zh:"向…收費",cat:"verb",ex:"bill a client"},
+  {en:"collaborate",zh:"合作",cat:"verb",ex:"collaborate with colleagues"},
+  {en:"coincide",zh:"同時發生",cat:"verb",ex:"coincide with the festival"},
+  {en:"compensate",zh:"補償",cat:"verb",ex:"compensate for losses"},
+  {en:"comply",zh:"遵守",cat:"verb",ex:"comply with regulations"},
+  {en:"conduct",zh:"進行；實施",cat:"verb",ex:"conduct a survey"},
+  {en:"confirm",zh:"確認",cat:"verb",ex:"confirm a reservation"},
+  {en:"conform",zh:"符合",cat:"verb",ex:"conform to standards"},
+  {en:"dedicate",zh:"致力於",cat:"verb",ex:"dedicate resources to education"},
+  {en:"demonstrate",zh:"展示",cat:"verb",ex:"demonstrate leadership skills"},
+  {en:"dispatch",zh:"派送",cat:"verb",ex:"dispatch the package"},
+  {en:"distribute",zh:"分發",cat:"verb",ex:"distribute brochures"},
+  {en:"eliminate",zh:"消除",cat:"verb",ex:"eliminate errors"},
+  {en:"enclose",zh:"附上",cat:"verb",ex:"enclose a copy of the receipt"},
+  {en:"endorse",zh:"支持；背書",cat:"verb",ex:"endorse a proposal"},
+  {en:"enroll",zh:"註冊；報名",cat:"verb",ex:"enroll in a course"},
+  {en:"enhance",zh:"提升",cat:"verb",ex:"enhance productivity"},
+  {en:"exceed",zh:"超過",cat:"verb",ex:"exceed expectations"},
+  {en:"expedite",zh:"加快",cat:"verb",ex:"expedite the process"},
+  {en:"expand",zh:"擴展",cat:"verb",ex:"expand operations"},
+  {en:"expire",zh:"到期",cat:"verb",ex:"expire next month"},
+  {en:"extend",zh:"延長",cat:"verb",ex:"extend the deadline"},
+  {en:"facilitate",zh:"促進",cat:"verb",ex:"facilitate communication"},
+  {en:"forward",zh:"轉寄；轉交",cat:"verb",ex:"forward the email to me"},
+  {en:"fulfill",zh:"完成；履行",cat:"verb",ex:"fulfill requirements"},
+  {en:"hesitate",zh:"猶豫",cat:"verb",ex:"hesitate to ask questions"},
+  {en:"identify",zh:"確認；辨識",cat:"verb",ex:"identify the problem"},
+  {en:"illustrate",zh:"說明；展示",cat:"verb",ex:"illustrate the process"},
+  {en:"implement",zh:"實施",cat:"verb",ex:"implement a new system"},
+  {en:"launch",zh:"推出；發起",cat:"verb",ex:"launch a new product"},
+  {en:"locate",zh:"找到；位於",cat:"verb",ex:"locate the file"},
+  {en:"malfunction",zh:"故障",cat:"verb",ex:"malfunction during operation"},
+  {en:"mark",zh:"標示；慶祝",cat:"verb",ex:"mark the anniversary"},
+  {en:"meet",zh:"達到；滿足",cat:"verb",ex:"meet the deadline"},
+  {en:"notify",zh:"通知",cat:"verb",ex:"notify customers of changes"},
+  {en:"obtain",zh:"取得",cat:"verb",ex:"obtain approval"},
+  {en:"oversee",zh:"監督",cat:"verb",ex:"oversee daily operations"},
+  {en:"participate",zh:"參加",cat:"verb",ex:"participate in the meeting"},
+  {en:"perform",zh:"執行",cat:"verb",ex:"perform maintenance"},
+  {en:"postpone",zh:"延後",cat:"verb",ex:"postpone the event"},
+  {en:"process",zh:"處理",cat:"verb",ex:"process an order"},
+  {en:"prohibit",zh:"禁止",cat:"verb",ex:"prohibit smoking"},
+  {en:"provide",zh:"提供",cat:"verb",ex:"provide support to customers"},
+  {en:"recall",zh:"回想起；召回",cat:"verb",ex:"recall the product"},
+  {en:"recruit",zh:"招募",cat:"verb",ex:"recruit new employees"},
+  {en:"redeem",zh:"兌換",cat:"verb",ex:"redeem a coupon"},
+  {en:"reduce",zh:"減少",cat:"verb",ex:"reduce costs"},
+  {en:"refrain",zh:"克制；避免",cat:"verb",ex:"refrain from making noise"},
+  {en:"reimburse",zh:"報銷；償還",cat:"verb",ex:"reimburse travel expenses"},
+  {en:"relocate",zh:"遷移；搬遷",cat:"verb",ex:"relocate to a new location"},
+  {en:"renew",zh:"更新；續約",cat:"verb",ex:"renew the subscription"},
+  {en:"require",zh:"需要",cat:"verb",ex:"require additional training"},
+  {en:"resume",zh:"恢復",cat:"verb",ex:"resume operations"},
+  {en:"retain",zh:"保留；留住",cat:"verb",ex:"retain customers"},
+  {en:"retrieve",zh:"取回",cat:"verb",ex:"retrieve the information"},
+  {en:"revise",zh:"修訂",cat:"verb",ex:"revise the proposal"},
+  {en:"secure",zh:"獲得；確保",cat:"verb",ex:"secure funding"},
+  {en:"solicit",zh:"徵求",cat:"verb",ex:"solicit feedback"},
+  {en:"specialize",zh:"專攻",cat:"verb",ex:"specialize in marketing"},
+  {en:"streamline",zh:"精簡；提高效率",cat:"verb",ex:"streamline operations"},
+  {en:"submit",zh:"提交",cat:"verb",ex:"submit a report"},
+  {en:"tailor",zh:"量身打造",cat:"verb",ex:"tailor services to customers"},
+  {en:"undergo",zh:"經歷；接受",cat:"verb",ex:"undergo training"},
+  {en:"vacate",zh:"騰出；搬離",cat:"verb",ex:"vacate the building"},
+  {en:"verify",zh:"確認；核實",cat:"verb",ex:"verify the information"},
+  {en:"waive",zh:"免除",cat:"verb",ex:"waive the fee"},
+
+  // ── 常考副詞 ──
+  {en:"absolutely",zh:"完全地",cat:"adv",ex:"absolutely necessary"},
+  {en:"accurately",zh:"精確地",cat:"adv",ex:"accurately predict sales"},
+  {en:"accordingly",zh:"因此；相應地",cat:"adv",ex:"act accordingly"},
+  {en:"altogether",zh:"總共；完全地",cat:"adv",ex:"altogether different"},
+  {en:"approximately",zh:"大約",cat:"adv",ex:"approximately 20 employees"},
+  {en:"closely",zh:"密切地",cat:"adv",ex:"work closely with"},
+  {en:"considerably",zh:"相當地；大幅地",cat:"adv",ex:"increase considerably"},
+  {en:"consistently",zh:"持續地；一貫地",cat:"adv",ex:"perform consistently"},
+  {en:"conveniently",zh:"方便地",cat:"adv",ex:"conveniently located"},
+  {en:"cordially",zh:"誠摯地",cat:"adv",ex:"cordially invited"},
+  {en:"currently",zh:"目前",cat:"adv",ex:"currently available"},
+  {en:"directly",zh:"直接地",cat:"adv",ex:"report directly to"},
+  {en:"efficiently",zh:"有效率地",cat:"adv",ex:"operate efficiently"},
+  {en:"evenly",zh:"平均地；均勻地",cat:"adv",ex:"evenly distributed"},
+  {en:"entirely",zh:"完全地",cat:"adv",ex:"entirely dependent on"},
+  {en:"exactly",zh:"正確地；恰好地",cat:"adv",ex:"exactly the same"},
+  {en:"exclusively",zh:"專門地；獨家地",cat:"adv",ex:"available exclusively online"},
+  {en:"extremely",zh:"極度地",cat:"adv",ex:"extremely satisfied"},
+  {en:"eventually",zh:"最終",cat:"adv",ex:"eventually approved"},
+  {en:"firmly",zh:"堅定地",cat:"adv",ex:"firmly believe"},
+  {en:"frequently",zh:"頻繁地",cat:"adv",ex:"frequently asked questions"},
+  {en:"generally",zh:"一般而言",cat:"adv",ex:"generally accepted"},
+  {en:"heavily",zh:"大量地；嚴重地",cat:"adv",ex:"heavily damaged"},
+  {en:"immediately",zh:"立即地；緊接地",cat:"adv",ex:"immediately next to the station"},
+  {en:"increasingly",zh:"越來越",cat:"adv",ex:"increasingly popular"},
+  {en:"initially",zh:"起初",cat:"adv",ex:"initially planned"},
+  {en:"largely",zh:"大部分地",cat:"adv",ex:"largely responsible for"},
+  {en:"mainly",zh:"主要地；大多",cat:"adv",ex:"mainly due to"},
+  {en:"nearly",zh:"幾乎",cat:"adv",ex:"nearly finished"},
+  {en:"necessarily",zh:"必然地",cat:"adv",ex:"not necessarily true"},
+  {en:"noticeably",zh:"明顯地",cat:"adv",ex:"noticeably improved"},
+  {en:"particularly",zh:"特別地",cat:"adv",ex:"particularly useful"},
+  {en:"previously",zh:"先前地",cat:"adv",ex:"previously mentioned"},
+  {en:"promptly",zh:"迅速地",cat:"adv",ex:"respond promptly"},
+  {en:"randomly",zh:"隨機地",cat:"adv",ex:"randomly selected"},
+  {en:"reasonably",zh:"合理地",cat:"adv",ex:"reasonably priced"},
+  {en:"recently",zh:"最近",cat:"adv",ex:"recently launched"},
+  {en:"regularly",zh:"定期地",cat:"adv",ex:"regularly updated"},
+  {en:"relatively",zh:"相對地",cat:"adv",ex:"relatively low cost"},
+  {en:"shortly",zh:"不久後",cat:"adv",ex:"shortly thereafter"},
+  {en:"significantly",zh:"顯著地",cat:"adv",ex:"increase significantly"},
+  {en:"simply",zh:"簡單地；只要",cat:"adv",ex:"simply by ordering online"},
+  {en:"simultaneously",zh:"同時地",cat:"adv",ex:"operate simultaneously"},
+  {en:"solely",zh:"僅僅；單獨地",cat:"adv",ex:"solely responsible for"},
+  {en:"thoroughly",zh:"徹底地",cat:"adv",ex:"thoroughly inspect"},
+  {en:"unanimously",zh:"一致地",cat:"adv",ex:"unanimously approved"},
+  {en:"virtually",zh:"幾乎；實際上",cat:"adv",ex:"virtually impossible"},
+  {en:"widely",zh:"廣泛地",cat:"adv",ex:"widely recognized"},
+];
+
+const CAT_LABEL = {noun:"名詞",verb:"動詞",adj:"形容詞",adv:"副詞"};
+const KEYS = ["①","②","③","④"];
+
+let mode = "random";
+let activeCat = "all";
+let pool = [];
+let queue = [];
+let qIndex = 0;
+let correct = 0, wrong = 0;
+let answered = false;
+
+function filteredWords() {
+  return activeCat === "all" ? WORDS : WORDS.filter(w => w.cat === activeCat);
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function setMode(m, el) {
+  mode = m;
+  document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function setCat(c, el) {
+  activeCat = c;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  restart();
+}
+
+function restart() {
+  pool = shuffle([...filteredWords()]);
+  queue = [...pool];
+  qIndex = 0; correct = 0; wrong = 0; answered = false;
+  document.getElementById('finish').style.display = 'none';
+  document.getElementById('quiz-area').style.display = 'block';
+  document.getElementById('total-count').textContent = pool.length + ' 個單字';
+  updateStats();
+  loadQ();
+}
+
+function updateStats() {
+  document.getElementById('s-correct').textContent = correct;
+  document.getElementById('s-wrong').textContent = wrong;
+  document.getElementById('s-remain').textContent = Math.max(0, queue.length - qIndex);
+}
+
+function loadQ() {
+  if (qIndex >= queue.length) { showFinish(); return; }
+  answered = false;
+  const w = queue[qIndex];
+  const total = queue.length;
+
+  // decide direction
+  let dir = mode;
+  if (dir === "random") dir = Math.random() < 0.5 ? "en2zh" : "zh2en";
+
+  // question display
+  const isEn2Zh = dir === "en2zh";
+  document.getElementById('q-type').textContent = isEn2Zh ? '請選出正確的中文意思' : '請選出正確的英文單字';
+  document.getElementById('q-word').textContent = isEn2Zh ? w.en : w.zh;
+  document.getElementById('q-pos').textContent = CAT_LABEL[w.cat];
+
+  // progress
+  const pct = Math.round((qIndex / total) * 100);
+  document.getElementById('prog-text').textContent = `第 ${qIndex+1} 題 / 共 ${total} 題`;
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-fill').style.width = pct + '%';
+
+  // options: 1 correct + 3 distractors from same category or all
+  const sameCat = pool.filter(x => x !== w && x.cat === w.cat);
+  const others = sameCat.length >= 3 ? sameCat : pool.filter(x => x !== w);
+  const distractors = shuffle([...others]).slice(0, 3);
+  const choices = shuffle([w, ...distractors]);
+
+  const opts = document.getElementById('opts');
+  opts.innerHTML = '';
+  choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerHTML = `<span class="opt-key">${KEYS[i]}</span><span>${isEn2Zh ? c.zh : c.en}</span>`;
+    btn.onclick = () => pick(btn, c === w, w, isEn2Zh);
+    opts.appendChild(btn);
+  });
+
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('next-btn').className = 'next-btn';
+  updateStats();
+}
+
+function pick(btn, isCorrect, word, isEn2Zh) {
+  if (answered) return;
+  answered = true;
+  if (isCorrect) {
+    correct++;
+    btn.classList.add('correct');
+  } else {
+    wrong++;
+    btn.classList.add('wrong');
+    // show correct
+    document.querySelectorAll('.opt').forEach(b => {
+      const txt = b.querySelector('span:last-child').textContent;
+      const match = isEn2Zh ? txt === word.zh : txt === word.en;
+      if (match) b.classList.add('correct');
+    });
+  }
+  document.querySelectorAll('.opt').forEach(b => b.disabled = true);
+
+  // feedback
+  const fb = document.getElementById('feedback');
+  fb.innerHTML = `<strong>${word.en}</strong> = ${word.zh}<div class="ex">常考搭配：${word.ex}</div>`;
+  fb.classList.add('show');
+
+  document.getElementById('next-btn').classList.add('ready');
+  updateStats();
+}
+
+function skip() {
+  // move current word to end of queue for retry
+  const w = queue.splice(qIndex, 1)[0];
+  queue.push(w);
+  loadQ();
+}
+
+function nextQ() {
+  if (!answered) return;
+  qIndex++;
+  loadQ();
+}
+
+function showFinish() {
+  document.getElementById('quiz-area').style.display = 'none';
+  const fin = document.getElementById('finish');
+  fin.style.display = 'block';
+  const total = correct + wrong;
+  const acc = total > 0 ? Math.round((correct/total)*100) : 0;
+  document.getElementById('f-correct').textContent = correct;
+  document.getElementById('f-wrong').textContent = wrong;
+  document.getElementById('f-acc').textContent = acc + '%';
+  const msg = acc >= 90 ? '太厲害了！多益滿分就是你 🔥' :
+              acc >= 70 ? '不錯！再加把勁就完美了 💪' :
+              acc >= 50 ? '繼續練習，你可以的 📚' : '多看幾遍，你一定能進步 😊';
+  document.getElementById('finish-sub').textContent = msg;
+}
+
+// keyboard shortcuts
+document.addEventListener('keydown', e => {
+  const map = {'1':0,'2':1,'3':2,'4':3};
+  if (e.key in map && !answered) {
+    const btns = document.querySelectorAll('.opt');
+    if (btns[map[e.key]]) btns[map[e.key]].click();
+  }
+  if ((e.key === 'Enter' || e.key === ' ') && answered) nextQ();
+});
+
+// init
+restart();
+</script>
+</body>
+</html>
